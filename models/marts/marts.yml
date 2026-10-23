@@ -1,0 +1,26 @@
+﻿version: 2
+
+models:
+  - name: orders_clean
+    description: "Commandes valides après contrôle qualité"
+    columns:
+      - name: order_id
+        data_tests:
+          - not_null
+      - name: quantity
+        data_tests:
+          - not_null
+
+  - name: orders_rejected
+    description: "Commandes rejetées avec leur motif"
+    columns:
+      - name: reject_reason
+        data_tests:
+          - not_null
+
+  - name: revenue_by_country
+    description: "Chiffre d'affaires par pays"
+    columns:
+      - name: country
+        data_tests:
+          - not_null

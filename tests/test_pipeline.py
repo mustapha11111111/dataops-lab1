@@ -80,3 +80,33 @@ def test_missing_customer_is_rejected():
 
     assert len(clean) == 1
     assert rejected.iloc[0]["reject_reason"] == "missing_customer_id"
+    
+def test_unknown_country_is_rejected():
+    import pandas as pd
+    from pipeline.transform import clean_orders
+
+    orders = pd.DataFrame([
+        {
+            "order_id": 1,
+            "order_date": "2026-10-05",
+            "customer_id": "C001",
+            "country": "Spain",
+            "product": "Monitor",
+            "quantity": 1,
+            "unit_price": 100.0,
+        },
+        {
+            "order_id": 2,
+            "order_date": "2026-10-05",
+            "customer_id": "C002",
+            "country": "Italy",
+            "product": "Keyboard",
+            "quantity": 1,
+            "unit_price": 50.0,
+        },
+    ])
+
+    clean, rejected = clean_orders(orders)
+
+    assert list(clean["order_id"]) == [2]
+    assert list(rejected["reject_reason"]) == ["unknown_country"]

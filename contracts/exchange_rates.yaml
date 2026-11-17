@@ -1,0 +1,32 @@
+version: 1.0.0
+kind: DataContract
+apiVersion: v3.2.0
+id: exchange-rates
+name: Taux de change de référence Frankfurter
+status: active
+servers:
+  - server: fixture
+    type: local
+    format: csv
+    path: ./tests/fixtures/rates_contract_sample.csv
+description:
+  purpose: Taux de référence EUR vers USD, TND, MAD, plus le taux identité EUR. Ce ne sont pas des prix de marché en temps réel.
+  limitations: Un jour sans publication s'appuie sur le dernier taux antérieur.
+schema:
+  - name: exchange_rates
+    physicalType: table
+    properties:
+      - name: rate_date
+        logicalType: string
+        required: true
+      - name: base_currency
+        logicalType: string
+        required: true
+      - name: quote_currency
+        logicalType: string
+        required: true
+      - name: rate
+        logicalType: string
+        required: true
+team:
+  name: equipe-finance

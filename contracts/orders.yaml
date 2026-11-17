@@ -1,0 +1,47 @@
+version: 1.0.0
+kind: DataContract
+apiVersion: v3.2.0
+id: orders
+name: Commandes synthétiques de la boutique
+status: active
+servers:
+  - server: fixture
+    type: local
+    format: csv
+    path: ./tests/fixtures/orders_contract_sample.csv
+description:
+  purpose: Une ligne par commande. Les données sont générées, pas des achats réels.
+  limitations: Le brut peut contenir des quantités négatives, des dates fausses ou des doublons. dbt les met en quarantaine.
+schema:
+  - name: orders
+    physicalType: table
+    properties:
+      - name: order_id
+        logicalType: string
+        required: true
+        primaryKey: true
+      - name: order_date
+        logicalType: string
+        required: true
+      - name: customer_id
+        logicalType: string
+      - name: country
+        logicalType: string
+        required: true
+      - name: product
+        logicalType: string
+        required: true
+      - name: quantity
+        logicalType: string
+        required: true
+      - name: unit_price
+        logicalType: string
+        required: true
+      - name: currency
+        logicalType: string
+        required: true
+      - name: data_origin
+        logicalType: string
+        required: true
+team:
+  name: equipe-ventes

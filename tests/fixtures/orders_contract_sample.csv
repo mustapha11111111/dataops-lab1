@@ -1,0 +1,4 @@
+order_id,order_date,customer_id,country,product,quantity,unit_price,currency,data_origin
+20261005001,2026-10-05,C001,France,Mouse,1,19.90,EUR,synthetique
+20261005002,2026-10-05,C002,Italy,Keyboard,2,48.60,EUR,synthetique
+20261005003,2026-10-05,C003,tunisia,Office chair,1,1481.70,TND,synthetique

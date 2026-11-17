@@ -1,3 +1,0 @@
-﻿SELECT * EXCLUDE (reject_reason)
-FROM {{ ref('int_orders_checked') }}
-WHERE reject_reason IS NULL

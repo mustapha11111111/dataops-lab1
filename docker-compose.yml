@@ -1,0 +1,42 @@
+name: dataops-ecommerce
+
+services:
+  pipeline:
+    build: .
+    command: python -m ecommerce_pipeline run
+    environment:
+      PYTHONPATH: /app/src
+      DUCKDB_PATH: /app/data/warehouse.duckdb
+      OFFLINE: ${OFFLINE:-0}
+      ALERT_WEBHOOK_URL: ${ALERT_WEBHOOK_URL:-}
+    volumes:
+      - ./data:/app/data
+
+  scheduler:
+    build: .
+    command: python -m ecommerce_pipeline schedule
+    depends_on:
+      pipeline:
+        condition: service_completed_successfully
+    environment:
+      PYTHONPATH: /app/src
+      DUCKDB_PATH: /app/data/warehouse.duckdb
+      OFFLINE: ${OFFLINE:-0}
+      ALERT_WEBHOOK_URL: ${ALERT_WEBHOOK_URL:-}
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
+
+  dashboard:
+    build: .
+    command: streamlit run dashboard/app.py --server.address 0.0.0.0 --server.port 8501
+    depends_on:
+      pipeline:
+        condition: service_completed_successfully
+    environment:
+      PYTHONPATH: /app/src
+      DUCKDB_PATH: /app/data/warehouse.duckdb
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./data:/app/data

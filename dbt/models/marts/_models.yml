@@ -1,0 +1,90 @@
+version: 2
+
+models:
+  - name: fct_sales
+    description: Ventes publiées, une commande valide, montant converti en EUR.
+    columns:
+      - name: order_id
+        tests: [unique, not_null]
+      - name: order_date
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_date')
+              field: date_day
+      - name: amount_eur
+        description: Montant en euros. Pour une devise étrangère, montant local divisé par le taux Frankfurter.
+        tests: [not_null]
+      - name: fx_rate
+        tests: [not_null]
+      - name: fx_rate_date
+        description: Date réelle du taux utilisé, qui peut être antérieure à la commande.
+        tests: [not_null]
+      - name: currency
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["EUR", "USD", "TND", "MAD"]
+      - name: country
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_country')
+              field: country
+      - name: product
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_product')
+              field: product
+      - name: customer_id
+        tests:
+          - relationships:
+              to: ref('dim_customer')
+              field: customer_id
+      - name: data_origin
+        tests:
+          - accepted_values:
+              values: ["synthetique"]
+
+  - name: dim_customer
+    columns:
+      - name: customer_id
+        tests: [unique, not_null]
+      - name: segment
+        tests:
+          - accepted_values:
+              values: ["fidele", "regulier", "occasionnel"]
+
+  - name: dim_product
+    columns:
+      - name: product
+        tests: [unique, not_null]
+
+  - name: dim_country
+    columns:
+      - name: country
+        tests: [unique, not_null]
+
+  - name: dim_date
+    columns:
+      - name: date_day
+        tests: [unique, not_null]
+
+  - name: mart_sales_anomalies
+    description: Écart d'une journée par rapport à la médiane du pays.
+    columns:
+      - name: anomaly_type
+        tests:
+          - accepted_values:
+              values:
+                - normal
+                - hausse_anormale
+                - baisse_anormale
+                - historique_insuffisant
+
+  - name: int_orders_rejected
+    description: Lignes isolées, avec le motif. Elles ne sont pas dans fct_sales.
+    columns:
+      - name: rejection_reason
+        tests: [not_null]

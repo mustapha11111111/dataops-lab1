@@ -1,3 +1,12 @@
-pandas>=2.0
-pytest>=7.0
-dvc>=3.0
+pandas==3.1.1
+pytest==9.2.0
+duckdb==2.0.0
+dbt-core==1.12.7
+dbt-duckdb==1.11.1
+ruff==0.17.5
+pandera==0.36.0
+prefect==3.9.3
+streamlit==1.67.0
+requests==2.34.2
+python-dotenv==1.2.4
+pyyaml==6.0.3

@@ -1,0 +1,218 @@
+[
+  {
+    "date": "2026-10-01",
+    "base": "EUR",
+    "quote": "MAD",
+    "rate": 11.0108
+  },
+  {
+    "date": "2026-10-01",
+    "base": "EUR",
+    "quote": "TND",
+    "rate": 3.3743
+  },
+  {
+    "date": "2026-10-01",
+    "base": "EUR",
+    "quote": "USD",
+    "rate": 1.1325
+  },
+  {
+    "date": "2026-10-02",
+    "base": "EUR",
+    "quote": "MAD",
+    "rate": 11.05
+  },
+  {
+    "date": "2026-10-02",
+    "base": "EUR",
+    "quote": "TND",
+    "rate": 3.3732
+  },
+  {
+    "date": "2026-10-02",
+    "base": "EUR",
+    "quote": "USD",
+    "rate": 1.1287
+  },
+  {
+    "date": "2026-10-03",
+    "base": "EUR",
+    "quote": "MAD",
+    "rate": 11.0882
+  },
+  {
+    "date": "2026-10-03",
+    "base": "EUR",
+    "quote": "TND",
+    "rate": 3.3728
+  },
+  {
+    "date": "2026-10-03",
+    "base": "EUR",
+    "quote": "USD",
+    "rate": 1.1281
+  },
+  {
+    "date": "2026-10-04",
+    "base": "EUR",
+    "quote": "MAD",
+    "rate": 11.1381
+  },
+  {
+    "date": "2026-10-04",
+    "base": "EUR",
+    "quote": "TND",
+    "rate": 3.3743
+  },
+  {
+    "date": "2026-10-04",
+    "base": "EUR",
+    "quote": "USD",
+    "rate": 1.1276
+  },
+  {
+    "date": "2026-10-05",
+    "base": "EUR",
+    "quote": "MAD",
+    "rate": 11.1435
+  },
+  {
+    "date": "2026-10-05",
+    "base": "EUR",
+    "quote": "TND",
+    "rate": 3.3667
+  },
+  {
+    "date": "2026-10-05",
+    "base": "EUR",
+    "quote": "USD",
+    "rate": 1.1229
+  },
+  {
+    "date": "2026-10-06",
+    "base": "EUR",
+    "quote": "MAD",
+    "rate": 11.1969
+  },
+  {
+    "date": "2026-10-06",
+    "base": "EUR",
+    "quote": "TND",
+    "rate": 3.3702
+  },
+  {
+    "date": "2026-10-06",
+    "base": "EUR",
+    "quote": "USD",
+    "rate": 1.1236
+  },
+  {
+    "date": "2026-10-07",
+    "base": "EUR",
+    "quote": "MAD",
+    "rate": 11.2074
+  },
+  {
+    "date": "2026-10-07",
+    "base": "EUR",
+    "quote": "TND",
+    "rate": 3.3676
+  },
+  {
+    "date": "2026-10-07",
+    "base": "EUR",
+    "quote": "USD",
+    "rate": 1.123
+  },
+  {
+    "date": "2026-10-08",
+    "base": "EUR",
+    "quote": "MAD",
+    "rate": 11.1745
+  },
+  {
+    "date": "2026-10-08",
+    "base": "EUR",
+    "quote": "TND",
+    "rate": 3.3664
+  },
+  {
+    "date": "2026-10-08",
+    "base": "EUR",
+    "quote": "USD",
+    "rate": 1.1202
+  },
+  {
+    "date": "2026-10-09",
+    "base": "EUR",
+    "quote": "MAD",
+    "rate": 11.1343
+  },
+  {
+    "date": "2026-10-09",
+    "base": "EUR",
+    "quote": "TND",
+    "rate": 3.3668
+  },
+  {
+    "date": "2026-10-09",
+    "base": "EUR",
+    "quote": "USD",
+    "rate": 1.1216
+  },
+  {
+    "date": "2026-10-10",
+    "base": "EUR",
+    "quote": "MAD",
+    "rate": 11.1044
+  },
+  {
+    "date": "2026-10-10",
+    "base": "EUR",
+    "quote": "TND",
+    "rate": 3.3669
+  },
+  {
+    "date": "2026-10-10",
+    "base": "EUR",
+    "quote": "USD",
+    "rate": 1.1218
+  },
+  {
+    "date": "2026-10-11",
+    "base": "EUR",
+    "quote": "MAD",
+    "rate": 11.0506
+  },
+  {
+    "date": "2026-10-11",
+    "base": "EUR",
+    "quote": "TND",
+    "rate": 3.3674
+  },
+  {
+    "date": "2026-10-11",
+    "base": "EUR",
+    "quote": "USD",
+    "rate": 1.1218
+  },
+  {
+    "date": "2026-10-12",
+    "base": "EUR",
+    "quote": "MAD",
+    "rate": 10.9657
+  },
+  {
+    "date": "2026-10-12",
+    "base": "EUR",
+    "quote": "TND",
+    "rate": 3.3616
+  },
+  {
+    "date": "2026-10-12",
+    "base": "EUR",
+    "quote": "USD",
+    "rate": 1.1202
+  }
+]

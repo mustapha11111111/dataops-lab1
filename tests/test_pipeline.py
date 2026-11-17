@@ -1,112 +1,188 @@
+from datetime import date
+from decimal import Decimal
+from pathlib import Path
 
+import duckdb
 import pandas as pd
-import pytest
+import yaml
 
-from pipeline.transform import clean_orders
-from pipeline.validate import DataQualityError, check_schema
+from ecommerce_pipeline.dbt_runner import run_dbt
+from ecommerce_pipeline.pipeline import run_pipeline
+from ecommerce_pipeline.warehouse import connect, replace_orders, replace_rates
 
-
-def sample_orders():
-    return pd.DataFrame([
-        {
-            "order_id": 1,
-            "order_date": "2026-10-01",
-            "customer_id": "C001",
-            "country": "Tunisia",
-            "product": "Book",
-            "quantity": 2,
-            "unit_price": 10.0,
-        },
-        {
-            "order_id": 2,
-            "order_date": "2026-10-02",
-            "customer_id": "C002",
-            "country": "France",
-            "product": "Pen",
-            "quantity": 3,
-            "unit_price": 5.0,
-        },
-    ])
+ROOT = Path(__file__).resolve().parents[1]
 
 
-def test_invalid_quantity_is_rejected():
-    orders = sample_orders()
-    orders.loc[0, "quantity"] = -1
+def test_contracts_list_the_business_columns():
+    orders = yaml.safe_load((ROOT / "contracts" / "orders.yaml").read_text(encoding="utf-8"))
+    rates = yaml.safe_load((ROOT / "contracts" / "exchange_rates.yaml").read_text(encoding="utf-8"))
+    order_columns = [item["name"] for item in orders["schema"][0]["properties"]]
+    rate_columns = [item["name"] for item in rates["schema"][0]["properties"]]
+    assert "currency" in order_columns
+    assert "data_origin" in order_columns
+    assert {"rate_date", "base_currency", "quote_currency", "rate"} <= set(rate_columns)
 
-    clean, rejected = clean_orders(orders)
 
-    assert len(clean) == 1
-    assert len(rejected) == 1
-    assert rejected.iloc[0]["reject_reason"] == "invalid_quantity"
+def _counts(path: Path) -> tuple:
+    connection = duckdb.connect(str(path), read_only=True)
+    try:
+        raw = connection.execute(
+            "SELECT count(*), count(DISTINCT order_id) FROM raw.orders"
+        ).fetchone()
+        rates = connection.execute(
+            """
+            SELECT count(*), count(DISTINCT rate_date || base_currency || quote_currency)
+            FROM raw.exchange_rates
+            """
+        ).fetchone()
+        return raw, rates
+    finally:
+        connection.close()
 
 
-def test_duplicate_order_is_rejected():
-    orders = pd.concat(
-        [sample_orders(), sample_orders().iloc[[0]]],
-        ignore_index=True,
+def test_second_run_does_not_duplicate_and_flags_tunisia(tmp_path):
+    database = tmp_path / "warehouse.duckdb"
+    alerts = tmp_path / "alerts"
+    kwargs = {
+        "start": date(2026, 10, 1),
+        "end": date(2026, 10, 12),
+        "per_day": 5,
+        "seed": 42,
+        "offline": True,
+        "duckdb_path": database,
+        "root": ROOT,
+        "alert_dir": alerts,
+    }
+    first = run_pipeline(**kwargs)
+    counts_after_first = _counts(database)
+    second = run_pipeline(**kwargs)
+    counts_after_second = _counts(database)
+
+    assert first["status"] == "success"
+    assert second["status"] == "success"
+    assert counts_after_first == counts_after_second
+    raw_rows, raw_ids = counts_after_second[0]
+    assert raw_rows == raw_ids + 1
+
+    connection = duckdb.connect(str(database), read_only=True)
+    try:
+        anomaly = connection.execute(
+            """
+            SELECT anomaly_type
+            FROM mart_sales_anomalies
+            WHERE country = 'Tunisia' AND order_date = DATE '2026-10-08'
+            """
+        ).fetchone()[0]
+        rejected = connection.execute(
+            """
+            SELECT order_id FROM int_orders_rejected
+            WHERE rejection_reason = 'quantite_invalide'
+            """
+        ).fetchone()[0]
+        still_published = connection.execute(
+            "SELECT count(*) FROM fct_sales WHERE order_id = ?",
+            [rejected],
+        ).fetchone()[0]
+    finally:
+        connection.close()
+
+    assert anomaly == "hausse_anormale"
+    assert still_published == 0
+    alert = json_alert(alerts)
+    assert alert["alert_level"] == "warning"
+    assert alert["marts_published"] is True
+
+
+def json_alert(alerts: Path) -> dict:
+    import json
+
+    return json.loads((alerts / "latest_alert.json").read_text(encoding="utf-8"))
+
+
+def test_weekend_order_uses_the_previous_rate(tmp_path):
+    database = tmp_path / "fx.duckdb"
+    orders = pd.DataFrame(
+        [
+            {
+                "order_id": "TND-SUN",
+                "order_date": "2026-10-04",
+                "customer_id": "C010",
+                "country": "Tunisia",
+                "product": "Mouse",
+                "quantity": "2",
+                "unit_price": "10.00",
+                "currency": "TND",
+                "data_origin": "synthetique",
+            },
+            {
+                "order_id": "EUR-MON",
+                "order_date": "2026-10-05",
+                "customer_id": "C011",
+                "country": "France",
+                "product": "Mouse",
+                "quantity": "1",
+                "unit_price": "50.00",
+                "currency": "EUR",
+                "data_origin": "synthetique",
+            },
+        ]
     )
-
-    clean, rejected = clean_orders(orders)
-
-    assert len(clean) == 2
-    assert len(rejected) == 1
-    assert rejected.iloc[0]["reject_reason"] == "duplicate_order_id"
-
-
-def test_country_is_normalised():
-    orders = sample_orders()
-    orders["country"] = [" france", "FRANCE "]
-
-    clean, rejected = clean_orders(orders)
-
-    assert clean["country"].tolist() == ["France", "France"]
-    assert len(rejected) == 0
-
-
-def test_check_schema_stops_on_missing_column():
-    orders = sample_orders().rename(
-        columns={"unit_price": "price"}
+    rates = pd.DataFrame(
+        [
+            {
+                "rate_date": "2026-10-02",
+                "base_currency": "EUR",
+                "quote_currency": "TND",
+                "rate": "3.319700",
+                "_source": "test",
+            },
+            {
+                "rate_date": "2026-10-05",
+                "base_currency": "EUR",
+                "quote_currency": "TND",
+                "rate": "4.000000",
+                "_source": "test",
+            },
+            {
+                "rate_date": "2026-10-04",
+                "base_currency": "EUR",
+                "quote_currency": "EUR",
+                "rate": "1.000000",
+                "_source": "interne_identite_eur",
+            },
+            {
+                "rate_date": "2026-10-05",
+                "base_currency": "EUR",
+                "quote_currency": "EUR",
+                "rate": "1.000000",
+                "_source": "interne_identite_eur",
+            },
+        ]
     )
+    connection = connect(database)
+    try:
+        replace_orders(connection, orders, "test")
+        replace_rates(connection, rates, "test")
+    finally:
+        connection.close()
 
-    with pytest.raises(DataQualityError):
-        check_schema(orders)
+    run_dbt(ROOT, database)
+    connection = duckdb.connect(str(database), read_only=True)
+    try:
+        tnd = connection.execute(
+            """
+            SELECT amount_eur, fx_rate_date, fx_method
+            FROM fct_sales WHERE order_id = 'TND-SUN'
+            """
+        ).fetchone()
+        eur = connection.execute(
+            "SELECT amount_eur, fx_method FROM fct_sales WHERE order_id = 'EUR-MON'"
+        ).fetchone()
+    finally:
+        connection.close()
 
-
-def test_missing_customer_is_rejected():
-    orders = sample_orders()
-    orders.loc[0, "customer_id"] = None
-
-    clean, rejected = clean_orders(orders)
-
-    assert len(clean) == 1
-    assert rejected.iloc[0]["reject_reason"] == "missing_customer_id"
-    
-def test_unknown_country_is_rejected():
-    import pandas as pd
-    from pipeline.transform import clean_orders
-
-    orders = pd.DataFrame([
-        {
-            "order_id": 1,
-            "order_date": "2026-10-05",
-            "customer_id": "C001",
-            "country": "Spain",
-            "product": "Monitor",
-            "quantity": 1,
-            "unit_price": 100.0,
-        },
-        {
-            "order_id": 2,
-            "order_date": "2026-10-05",
-            "customer_id": "C002",
-            "country": "Italy",
-            "product": "Keyboard",
-            "quantity": 1,
-            "unit_price": 50.0,
-        },
-    ])
-
-    clean, rejected = clean_orders(orders)
-
-    assert list(clean["order_id"]) == [2]
-    assert list(rejected["reject_reason"]) == ["unknown_country"]
+    assert tnd[1] == date(2026, 10, 2)
+    assert tnd[2] == "taux_anterieur_le_plus_recent"
+    assert Decimal(str(tnd[0])) == Decimal("6.02")
+    assert Decimal(str(eur[0])) == Decimal("50.00")
+    assert eur[1] == "identite_eur"

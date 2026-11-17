@@ -1,0 +1,26 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      PYTHONPATH: src
+      DBT_SEND_ANONYMOUS_USAGE_STATS: "false"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Installer les dépendances figées
+        run: pip install -r requirements.txt
+      - name: Lint
+        run: ruff check src tests dashboard
+      - name: Tests et dbt build sur le jeu offline
+        run: pytest
+      - name: Vérifier Docker Compose
+        run: docker compose config

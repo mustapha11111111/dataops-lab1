@@ -1,0 +1,19 @@
+version: 2
+
+sources:
+  - name: raw
+    description: Données brutes chargées par Python, sans règle métier.
+    schema: raw
+    tables:
+      - name: orders
+        description: Commandes synthétiques, une ligne par commande reçue, y compris les lignes fausses.
+        loaded_at_field: _loaded_at
+        freshness:
+          warn_after: {count: 36, period: hour}
+          error_after: {count: 72, period: hour}
+      - name: exchange_rates
+        description: Taux Frankfurter EUR vers USD, TND et MAD, plus le taux identité 1 pour EUR.
+        loaded_at_field: _loaded_at
+        freshness:
+          warn_after: {count: 36, period: hour}
+          error_after: {count: 72, period: hour}

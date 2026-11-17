@@ -1,0 +1,22 @@
+order_id,order_date,customer_id,country,product,quantity,unit_price,currency,data_origin
+20261001001,2026-10-01,C001,France,Mouse,1,19.90,EUR,synthetique
+20261001002,2026-10-01,C002,Italy,Keyboard,2,45.00,EUR,synthetique
+20261001003,2026-10-01,C0210,tunisia,Headset,3,196.35,TND,synthetique
+20261001004,2026-10-01,C0310,Morocco,Webcam,1,421.20,MAD,synthetique
+20261001005,2026-10-01,C0410,United States,Desk lamp,2,31.32,USD,synthetique
+20261002001,2026-10-02,C001,France,Mouse,1,19.90,EUR,synthetique
+20261002002,2026-10-02,C002,Italy,Keyboard,2,45.00,EUR,synthetique
+20261002003,2026-10-02,C0210,Tunisia,Headset,3,196.35,TND,synthetique
+20261002004,2026-10-02,C0310,Morocco,Webcam,1,421.20,MAD,synthetique
+20261002005,2026-10-02,C0410,United States,Desk lamp,2,31.32,USD,synthetique
+20261003001,2026-10-03,C001,France,Mouse,1,19.90,EUR,synthetique
+20261003002,2026-10-03,C002,Italy,Keyboard,2,45.00,EUR,synthetique
+20261003003,2026-10-03,C0210,Tunisia,Headset,3,196.35,TND,synthetique
+20261003004,2026-10-03,C0310,Morocco,Webcam,1,421.20,MAD,synthetique
+20261003005,2026-10-03,C0410,United States,Desk lamp,2,31.32,USD,synthetique
+20261001901,2026-10-01,C901,France,Mouse,-2,19.90,EUR,synthetique
+20261001902,2026-10-01,C902,Italy,Keyboard,1,0,EUR,synthetique
+20261001903,2026-13-45,C903,France,Webcam,1,39.00,EUR,synthetique
+20261001904,2026-10-01,C904,France,Headset,1,59.50,XXX,synthetique
+20261001905,2026-10-01,,France,Mouse,1,19.90,EUR,synthetique
+20261001001,2026-10-01,C001,France,Mouse,1,19.90,EUR,synthetique
